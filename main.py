@@ -16,7 +16,7 @@ def get_one_film(id:int):
         cursor = conn.cursor()
         cursor.execute(f"""SELECT * FROM Film WHERE Film.ID = {id}""")   
         res = cursor.fetchone()
-        return json(res)
+        return res
 
 
 
