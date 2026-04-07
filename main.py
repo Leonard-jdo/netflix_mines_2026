@@ -10,27 +10,29 @@ app = FastAPI()
 def ping():
     return {"message": "pong"}
 
+@app.get("/films/{film_id}")
+def get_one_film(film_id:int):
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"""SELECT * FROM Film WHERE Film.ID = {film_id}""")   
+        res = cursor.fetchone()
+        return json(res)
+
+
 
 @app.get("/films")
-def get_films(page:int = 1, per_page:int = 20, genre_id:int=None, film_id:int=None):
+def get_films(page:int = 1, per_page:int = 20, genre_id:int=None):
     with get_connection() as conn:
         cursor = conn.cursor()
         offset = (page-1)*per_page
         query=f"""SELECT * FROM Film"""
-        flag=False
         if genre_id:
             query+=f""" WHERE Film.Genre_ID = {genre_id}"""
-            flag=True
-        if film_id:
-            if not flag:
-                query+=f""" WHERE Film.ID = {film_id}"""
-            else:
-                query+=f""" AND Film.ID = {film_id}"""
         query+=f""" LIMIT {per_page} OFFSET {offset}"""
         cursor.execute(query)   
         res = cursor.fetchall()
         return {
-  "data": res,
+  "data": json(res),
   "page": page,
   "per_page": per_page,
   "total": 100
