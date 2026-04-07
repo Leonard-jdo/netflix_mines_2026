@@ -10,11 +10,11 @@ app = FastAPI()
 def ping():
     return {"message": "pong"}
 
-@app.get("/films/{film_id}")
-def get_one_film(film_id:int):
+@app.get("/films/{id}")
+def get_one_film(id:int):
     with get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute(f"""SELECT * FROM Film WHERE Film.ID = {film_id}""")   
+        cursor.execute(f"""SELECT * FROM Film WHERE Film.ID = {id}""")   
         res = cursor.fetchone()
         return json(res)
 
