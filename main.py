@@ -9,14 +9,29 @@ app = FastAPI()
 def ping():
     return {"message": "pong"}
 
+@app.get("/films")
+def get_films(page:int = 1, per_page:int = 10):
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        offset = (page-1)*per_page
+        limit = per_page
+        cursor.execute(f"""
+SELECT * FROM Film LIMIT {limit} OFFSET {offset}
+""")
+        res = cursor.fetchall()
+        print(res)
+        return res 
+
+
 class Film(BaseModel):
     id: int | None = None
     nom: str
     note: float | None = None
-    dateSortie: int
+    datesortie: int
     image: str | None = None
     video: str | None = None
     genreId: int | None = None
+
 
 @app.post("/film")
 async def createFilm(film : Film):
@@ -24,7 +39,7 @@ async def createFilm(film : Film):
         cursor = conn.cursor()
         cursor.execute(f"""
             INSERT INTO Film (Nom,Note,DateSortie,Image,Video)  
-            VALUES('{film.nom}',{film.note},{film.dateSortie},'{film.image}','{film.video}') RETURNING *
+            VALUES('{film.nom}',{film.note},{film.datesortie},'{film.image}','{film.video}') RETURNING *
             """)
         res = cursor.fetchone()
         print(res)
